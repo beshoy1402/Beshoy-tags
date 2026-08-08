@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Beshoy Tags</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%2312141C%22/><circle cx=%2250%22 cy=%2250%22 r=%2215%22 fill=%22%23C9A227%22/></svg>">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<!-- Password lock screen -->
+<div id="lockScreen" class="admin-lock">
+  <h2>Beshoy Tags Admin</h2>
+  <p style="color:var(--muted);font-size:13.5px;margin-top:-8px;">Enter the admin password to continue.</p>
+  <input type="password" id="adminPassword" placeholder="Password">
+  <button class="btn btn-dark btn-block" onclick="tryLogin()">Enter</button>
+  <div class="note">⚠️ This is a basic client-side lock for convenience only — it is <strong>not</strong> real security. Anyone who views this page's source can find the password. Don't store sensitive data here.</div>
+</div>
+
+<div id="adminApp" style="display:none;">
+  <header class="admin-header">
+    <div class="container">
+      <a href="index.html" class="logo">Beshoy <span class="brand-b">Tags</span> · Admin</a>
+      <nav>
+        <a href="index.html">View store</a>
+        <a href="#" onclick="logout()">Log out</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="admin-wrap">
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="products" onclick="switchTab('products')">Products</button>
+      <button class="admin-tab" data-tab="orders" onclick="switchTab('orders')">Orders <span class="tab-count" id="ordersCount"></span></button>
+      <button class="admin-tab" data-tab="categories" onclick="switchTab('categories')">Categories</button>
+      <button class="admin-tab" data-tab="customization" onclick="switchTab('customization')">Customization</button>
+    </div>
+
+    <!-- PRODUCTS TAB -->
+    <section class="admin-panel active" id="tab-products">
+      <div class="admin-banner">
+        <strong>How this works:</strong> Changes you make here (add/edit/delete products, prices, images) are saved in this browser only. To make them live for everyone on the actual website, click <strong>"Export products.json"</strong> below, then replace the product list in <code>js/products.js</code> with the exported data and push it to GitHub.
+      </div>
+
+      <div class="admin-toolbar">
+        <h1>Products</h1>
+        <div class="toolbar-actions">
+          <button class="btn btn-ghost btn-small" onclick="Store.exportProducts()">Export products.json</button>
+          <button class="btn btn-ghost btn-small" onclick="document.getElementById('importFile').click()">Import JSON</button>
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+          <button class="btn btn-ghost btn-small" onclick="handleResetDefaults()">Reset to defaults</button>
+          <button class="btn btn-primary btn-small" onclick="openProductModal()">+ Add product</button>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ORDERS TAB -->
+    <section class="admin-panel" id="tab-orders">
+      <div class="admin-banner">
+        <strong>Important:</strong> This site is hosted as static files with no backend, so orders placed by real customers on their own devices won't show up here automatically — only orders placed in <em>this</em> browser will. At checkout, customers' order details are sent to your WhatsApp number (set in the Customization tab) so you never miss a real order. This tab is mainly useful for testing, and for keeping a record of orders you've manually logged.
+      </div>
+
+      <div class="admin-toolbar">
+        <h1>Orders</h1>
+        <div class="toolbar-actions">
+          <button class="btn btn-ghost btn-small" onclick="Store.exportOrders()">Export orders.json</button>
+          <button class="btn btn-primary btn-small" onclick="openManualOrderModal()">+ Log an order manually</button>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CATEGORIES TAB -->
+    <section class="admin-panel" id="tab-categories">
+      <div class="admin-banner">
+        Categories let shoppers filter products on the homepage. Add or remove them here, then assign each product to one from the product edit form.
+      </div>
+
+      <div class="admin-toolbar">
+        <h1>Categories</h1>
+      </div>
+
+      <div class="add-category-row">
+        <input type="text" id="newCategoryInput" placeholder="e.g. Smart Wristbands">
+        <button class="btn btn-primary btn-small" onclick="handleAddCategory()">+ Add category</button>
+      </div>
+
+      <div class="category-list" id="categoryList"></div>
+    </section>
+
+    <!-- CUSTOMIZATION TAB -->
+    <section class="admin-panel" id="tab-customization">
+      <div class="admin-banner">
+        This info powers the footer, the tagline on the homepage, and the WhatsApp number that orders get sent to. Click <strong>Export settings.json</strong> and paste it into <code>js/settings.js</code> to make it permanent on the live site.
+      </div>
+
+      <div class="admin-toolbar">
+        <h1>Site Customization</h1>
+        <div class="toolbar-actions">
+          <button class="btn btn-ghost btn-small" onclick="Store.exportSettings()">Export settings.json</button>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap" style="padding:26px;">
+        <form id="settingsForm" onsubmit="return false;">
+          <div class="form-row">
+            <label>Homepage tagline</label>
+            <input type="text" id="sTagline">
+          </div>
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label>Phone number (displayed)</label>
+              <input type="text" id="sPhone" placeholder="+20 100 000 0000">
+            </div>
+            <div class="form-row">
+              <label>WhatsApp number (orders sent here)</label>
+              <input type="text" id="sWhatsapp" placeholder="201000000000 — digits only, country code, no +">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label>Email</label>
+              <input type="text" id="sEmail">
+            </div>
+            <div class="form-row">
+              <label>Address</label>
+              <input type="text" id="sAddress">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label>Instagram URL (optional)</label>
+              <input type="text" id="sInstagram" placeholder="https://instagram.com/...">
+            </div>
+            <div class="form-row">
+              <label>Facebook URL (optional)</label>
+              <input type="text" id="sFacebook" placeholder="https://facebook.com/...">
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" onclick="saveSettingsForm()">Save changes</button>
+        </form>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Manual order modal -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal-box">
+    <h2>Log an order manually</h2>
+    <form onsubmit="return false;">
+      <div class="form-row">
+        <label>Customer name</label>
+        <input type="text" id="oName" required>
+      </div>
+      <div class="form-row">
+        <label>Phone</label>
+        <input type="text" id="oPhone">
+      </div>
+      <div class="form-row">
+        <label>Order summary (items, quantities)</label>
+        <textarea id="oSummary" placeholder="e.g. 2x NFC Business Card, 1x Pet Tag"></textarea>
+      </div>
+      <div class="form-row">
+        <label>Total (EGP)</label>
+        <input type="number" id="oTotal" min="0">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost btn-small" onclick="closeManualOrderModal()">Cancel</button>
+        <button type="button" class="btn btn-primary btn-small" onclick="saveManualOrder()">Save order</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal-box">
+    <h2 id="modalTitle">Add product</h2>
+    <form id="productForm" onsubmit="return false;">
+      <input type="hidden" id="fId">
+
+      <div class="form-row">
+        <label>Product name</label>
+        <input type="text" id="fName" required>
+      </div>
+
+      <div class="form-row">
+        <label>Description</label>
+        <textarea id="fDescription"></textarea>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label>Current price (EGP)</label>
+          <input type="number" id="fPrice" min="0" required>
+        </div>
+        <div class="form-row">
+          <label>Old price (EGP)</label>
+          <input type="number" id="fOldPrice" min="0">
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label>Category</label>
+          <select id="fCategory"></select>
+        </div>
+        <div class="form-row">
+          <label>Availability</label>
+          <select id="fAvailable">
+            <option value="true">In stock</option>
+            <option value="false">Out of stock</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Product images</label>
+        <div class="image-upload-zone">
+          Click or drag images here to upload from your laptop
+          <input type="file" id="fImages" accept="image/*" multiple onchange="handleImageUpload(event)">
+        </div>
+        <div class="hint">Images are stored as embedded data in your browser. Large images make the export file bigger — resize very large photos before uploading if possible.</div>
+        <div class="image-preview-grid" id="imagePreviewGrid"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost btn-small" onclick="closeProductModal()">Cancel</button>
+        <button type="button" class="btn btn-primary btn-small" onclick="saveProductForm()">Save product</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/products.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

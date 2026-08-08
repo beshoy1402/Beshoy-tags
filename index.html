@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beshoy Tags — Smart NFC Tags &amp; Cards</title>
+<meta name="description" content="Beshoy Tags — smart NFC business cards, pet tags, luggage tags and more. Tap to share, instantly.">
+<meta property="og:title" content="Beshoy Tags">
+<meta property="og:description" content="Smart NFC tags and cards — tap to share instantly.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%2312141C%22/><circle cx=%2250%22 cy=%2250%22 r=%2215%22 fill=%22%23C9A227%22/></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo"><span class="mark"></span>Beshoy <span class="brand-b">Tags</span></a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="index.html#shop">Shop</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" id="cartToggle" aria-label="Open cart">
+        🛍
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="eyebrow">Tap. Share. Connect.</div>
+    <h1>Your identity, one tap away.</h1>
+    <p id="heroTagline">Beshoy Tags makes smart NFC business cards, pet tags, luggage tags and more — durable, reprogrammable, and ready in seconds.</p>
+    <a href="#shop" class="btn btn-primary">Shop the collection →</a>
+  </div>
+</section>
+
+<main class="container section" id="shop">
+  <div class="section-head">
+    <div>
+      <h2>Our Products</h2>
+      <p>All prices in EGP. Free re-programming for the lifetime of your tag.</p>
+    </div>
+  </div>
+  <div class="category-filters" id="categoryFilters"></div>
+  <div class="product-grid" id="productGrid"></div>
+</main>
+
+<section class="section" id="about" style="background:#fff;">
+  <div class="container" style="max-width:720px;">
+    <h2 style="font-family:var(--font-display);font-weight:500;font-size:28px;">About Beshoy Tags</h2>
+    <p style="color:#4a4c55;line-height:1.7;">Beshoy Tags designs and delivers smart NFC products for everyday life — from business cards that share your details with a tap, to pet and luggage tags that help lost things find their way home. Every tag is reprogrammable, durable, and built to last.</p>
+  </div>
+</section>
+
+<footer class="site-footer" id="contact">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Beshoy Tags</h4>
+        <p>Smart NFC tags &amp; cards.<br>Tap to share, instantly.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="index.html#shop">All Products</a>
+        <a href="index.html#shop">NFC Cards</a>
+        <a href="index.html#shop">Smart Tags</a>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <a href="#">How it works</a>
+        <a href="#">FAQ</a>
+        <a href="#contact">Contact us</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p id="footerEmail">hello@beshoytags.com</p>
+        <p id="footerPhone">+20 100 000 0000</p>
+        <a href="#" id="footerInstagram" target="_blank" rel="noopener">Instagram</a>
+        <a href="#" id="footerFacebook" target="_blank" rel="noopener">Facebook</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Beshoy Tags. All rights reserved.</span>
+      <span id="footerAddress">Cairo, Egypt</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Checkout Modal -->
+<div class="checkout-overlay" id="checkoutOverlay">
+  <div class="checkout-box">
+    <h3>Complete your order</h3>
+    <p class="checkout-note">We'll open WhatsApp with your order details pre-filled so we can confirm it with you directly.</p>
+    <form id="checkoutForm" onsubmit="return false;">
+      <div class="form-row">
+        <label>Full name</label>
+        <input type="text" id="coName" required>
+      </div>
+      <div class="form-row">
+        <label>Phone number</label>
+        <input type="text" id="coPhone" required>
+      </div>
+      <div class="form-row">
+        <label>Delivery address (optional)</label>
+        <input type="text" id="coAddress">
+      </div>
+      <div class="form-row">
+        <label>Notes (optional)</label>
+        <textarea id="coNotes"></textarea>
+      </div>
+      <div class="checkout-actions">
+        <button type="button" class="btn btn-outline btn-small" onclick="closeCheckoutModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" style="flex:1;" onclick="submitCheckout()">Place order via WhatsApp</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Cart Drawer -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<aside class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h3>Your Cart</h3>
+    <button class="cart-close" id="cartClose" aria-label="Close cart">×</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-summary">
+    <div class="summary-row"><span>Subtotal</span><span id="sumSubtotal">0 EGP</span></div>
+    <div class="summary-row"><span>Discount</span><span id="sumDiscount">0 EGP</span></div>
+    <div class="summary-row total"><span>Total</span><span id="sumTotal">0 EGP</span></div>
+    <button class="btn btn-dark btn-block" id="checkoutBtn" style="margin-top:16px;">Checkout</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/products.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
